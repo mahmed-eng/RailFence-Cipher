@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rail Fence Cipher</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f2f2f2;
+}
+
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+}
+
+input, textarea, button {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.result {
+    margin-top: 20px;
+}
+
+.result textarea {
+    width: 100%;
+    height: 100px;
+    resize: none;
+}
+
+@media screen and (max-width: 600px) {
+    .container {
+        width: 90%;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Rail Fence Cipher</h1>
+    <form>
+        <label for="plaintext">Enter Text:</label>
+        <textarea id="plaintext" rows="4" cols="50" placeholder="Enter your text..."></textarea>
+        <label for="rails">Enter Number of Rails:</label>
+        <input type="number" id="rails" placeholder="Enter number of rails...">
+        <button type="button" onclick="encrypt()">Encrypt</button>
+        <div class="result">
+            <label for="ciphertext">Result:</label>
+            <textarea id="ciphertext" readonly placeholder="Encrypted text will appear here..."></textarea>
+        </div>
+    </form>
+
+    <form>
+        <label for="decryptText">Enter Cipher Text:</label>
+        <textarea id="decryptText" rows="4" cols="50" placeholder="Enter your cipher text..."></textarea>
+        <label for="railsDecrypt">Enter Number of Rails:</label>
+        <input type="number" id="railsDecrypt" placeholder="Enter number of rails...">
+        <button type="button" onclick="decrypt()">Decrypt</button>
+        <div class="result">
+            <label for="decryptedText">Result:</label>
+            <textarea id="decryptedText" readonly placeholder="Decrypted text will appear here..."></textarea>
+        </div>
+    </form>
+</div>
+
+<script>
+function encrypt() {
+    let plaintext = document.getElementById('plaintext').value;
+    let rails = parseInt(document.getElementById('rails').value);
+    let encryptedText = railFenceEncrypt(plaintext, rails);
+    document.getElementById('ciphertext').value = encryptedText;
+}
+
+function decrypt() {
+    let ciphertext = document.getElementById('decryptText').value;
+    let rails = parseInt(document.getElementById('railsDecrypt').value);
+    let decryptedText = railFenceDecrypt(ciphertext, rails);
+    document.getElementById('decryptedText').value = decryptedText;
+}
+
+function railFenceEncrypt(plaintext, rails) {
+    let fence = [];
+    for (let i = 0; i < rails; i++) {
+        fence.push([]);
+    }
+
+    let rail = 0;
+    let direction = 1;
+
+    for (let char of plaintext) {
+        fence[rail].push(char);
+        rail += direction;
+        if (rail === 0 || rail === rails - 1) {
+            direction *= -1;
+        }
+    }
+
+    let encryptedText = '';
+    for (let rail of fence) {
+        encryptedText += rail.join('');
+    }
+    return encryptedText;
+}
+
+function railFenceDecrypt(ciphertext, rails) {
+    let fence = [];
+    for (let i = 0; i < rails; i++) {
+        fence.push([]);
+    }
+
+    let rail = 0;
+    let direction = 1;
+
+    for (let i = 0; i < ciphertext.length; i++) {
+        fence[rail].push(i);
+        rail += direction;
+        if (rail === 0 || rail === rails - 1) {
+            direction *= -1;
+        }
+    }
+
+    let idx = 0;
+    for (let i = 0; i < rails; i++) {
+        for (let j = 0; j < fence[i].length; j++) {
+            fence[i][j] = ciphertext[idx++];
+        }
+    }
+
+    rail = 0;
+    direction = 1;
+    let decryptedText = '';
+
+    for (let i = 0; i < ciphertext.length; i++) {
+        decryptedText += fence[rail].shift();
+        rail += direction;
+        if (rail === 0 || rail === rails - 1) {
+            direction *= -1;
+        }
+    }
+
+    return decryptedText;
+}
+</script>
+</body>
+</html>
